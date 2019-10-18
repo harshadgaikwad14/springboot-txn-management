@@ -38,5 +38,6 @@ public interface OrganizationService {
 
 	public void joinOrg_ParentPropagationRequired_ChildPropagationMandatory(Employee employee);
 
+	public void joinOrg_Isolation_Txn_Serializable(Employee employee, EmployeeHealthInsurance employeeHealthInsurance);
 
 }

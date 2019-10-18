@@ -9,6 +9,7 @@ import com.example.demo.exception.InvalidInsuranceAmountException;
 import com.example.demo.test.TestBasicTxnMgment;
 import com.example.demo.test.TestPropagationTxnMgment;
 import com.example.demo.test.TestTransactionRollback;
+import com.example.demo.test.TestTxnIsolation;
 
 @SpringBootApplication
 public class SpringbootTxnManagementApplication {
@@ -24,9 +25,55 @@ public class SpringbootTxnManagementApplication {
 		//getTestPropagationTxnMgment(testPropagationTxnMgment);
 		
 		final TestTransactionRollback testTransactionRollback = context.getBean(TestTransactionRollback.class);
-		getTestTransactionRollback(testTransactionRollback);
+		//getTestTransactionRollback(testTransactionRollback);
+		
+		final TestTxnIsolation testTxnIsolation = context.getBean(TestTxnIsolation.class);
+		testTxnIsolation.joinOrg_Isolation_Txn_Serializable();
+		
 	}
 	
+	static void getTestTransactionRollback(final TestTxnIsolation testTxnIsolation) throws InvalidInsuranceAmountException
+	{
+		/*
+		 * 
+		 * Dirty Reads =>	Suppose two transactions - Transaction A and Transaction B are running concurrently. 
+		 * 					If Transaction A modifies a record but not commits it. Transaction B reads this record but 
+		 * 					then Transaction A again rollbacks the changes for the record and commits it. 
+		 * 					So Transaction B has a wrong value.
+		 * Non-Repeatable Reads =>	Suppose two transactions - Transaction A and Transaction B are running concurrently. 
+		 * 							If Transaction A reads some records. Transaction B modifies these records before transaction A has been committed. 
+		 * 							So if Transaction A again reads these records they will be different. 
+		 * 							So same select statements result in different existing records.
+		 * Phantom Reads =>	Suppose two transactions - Transaction A and Transaction B are running concurrently. 
+		 * 					If Transaction A reads some records. Transaction B adds more such records before transaction A has been committed. 
+		 * 					So if Transaction A again reads there will be more records than the previous select statement. 
+		 * 					So same select statements result in different number records to be displayed as new records also get added.
+		 * 
+		 * 
+		 * The following are the types of Transaction Isolation Levels-
+		 * 
+		 * SERIALIZABLE =>	If two transactions are executing concurrently then it is as if the transactions get executed serially i.e 
+		 * 					the first transaction gets committed only then the second transaction gets executed. 
+		 * 					This is total isolation. So a running transaction is never affected by other transactions. 
+		 * 					However this may cause issues as performance will be low and deadlock might occur.
+		 * 
+		 * REPEATABLE_READ =>	If two transactions are executing concurrently - till the first transaction is committed the existing records cannot be changed 
+		 * 						by second transaction but new records can be added. After the second transaction is committed, 
+		 * 						the new added records get reflected in first transaction which is still not committed. 
+		 * 						For MySQL the default isolation level is REPEATABLE_READ.
+		 *						However the REPEATABLE READ isolation level behaves differently when using mysql. 
+		 *						When using MYSQL we are not able to see the newly added records that are committed by the second transaction.
+		 * 
+		 * READ_COMMITTED => 	If two transactions are executing concurrently - before the first transaction is committed the existing records can be changed 
+		 * 						as well as new records can be changed by second transaction. After the second transaction is committed, 
+		 * 						the newly added and also updated records get reflected in first transaction which is still not committed.
+		 * 
+		 * READ_UNCOMMITTED =>	If two transactions are executing concurrently - before the first transaction is committed the existing records can be 
+		 * 						changed as well as new records can be changed by second transaction. Even if the second transaction is not committed 
+		 * 						the newly added and also updated records get reflected in first transaction which is still not committed.
+		 */
+		testTxnIsolation.joinOrg_Isolation_Txn_Serializable();
+	}
 	static void getTestTransactionRollback(final TestTransactionRollback testTransactionRollback) throws InvalidInsuranceAmountException
 	{
 		testTransactionRollback.positive_JoinOrgRollbackTxn_ExceptionRaised();

@@ -2,6 +2,7 @@ package com.example.demo.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -137,6 +138,17 @@ public class OrganzationServiceImpl implements OrganizationService {
 		} catch (InvalidInsuranceAmountException e) {
 			throw new InvalidInsuranceAmountException("Exception is thrown");
 		}
+		
+	}
+
+	@Override
+	@Transactional(isolation = Isolation.SERIALIZABLE)
+	public void joinOrg_Isolation_Txn_Serializable(Employee employee, EmployeeHealthInsurance employeeHealthInsurance) {
+		// TODO Auto-generated method stub
+		
+		employeeService.saveEmpWithOutTxn(employee);
+		healthInsuranceService.saveHalthInsuWithOutTxn(employeeHealthInsurance);
+		
 		
 	}
 }
